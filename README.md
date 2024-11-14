@@ -1,3 +1,13 @@
+<div align="center">
+	<img style="border-radius: 20px" src="public/favicon.png" width="96">
+	<h1>Blur</h1>
+	<h3>Blurs any photos. Useful for backgrounds, wallpapers and more.</h3>
+	<br>
+	<h4><a href="https://blur.brainbox.no">Open App</a></h4>
+</div>
+<br>
+<br>
+
 # Blur
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.9.

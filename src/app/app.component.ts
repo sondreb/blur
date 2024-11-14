@@ -34,6 +34,19 @@ export class AppComponent {
     }
   }
 
+  async onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      this.isProcessing = true;
+      this.imageUrl = await this.readFile(file);
+      await this.processImage();
+      this.isProcessing = false;
+    }
+    // Reset input value to allow selecting the same file again
+    input.value = '';
+  }
+
   async processImage() {
     if (this.imageUrl) {
       this.blurredImageUrl = await this.applyBlur(this.imageUrl);
