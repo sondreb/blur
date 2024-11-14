@@ -10,6 +10,8 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  justify-content: center;  /* Center vertically */
+  align-items: center;      /* Center horizontally */
 }
 
 .container:not(.has-image) {
@@ -98,4 +100,10 @@ button:hover {
 
 .reset:hover {
   background-color: #c82333;
+}
+
+/* Add styles for the message */
+.container p {
+  font-size: 1.2rem;
+  color: #666;
 }
