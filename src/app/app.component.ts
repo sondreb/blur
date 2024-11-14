@@ -48,13 +48,34 @@ export class AppComponent {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d')!;
         
-        canvas.width = img.width;
-        canvas.height = img.height;
+        const aspectRatio = img.width / img.height;
+        const targetWidth = 1920;
+        const targetHeight = Math.round(targetWidth / aspectRatio);
         
-        ctx.filter = 'blur(10px)';
-        ctx.drawImage(img, 0, 0);
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
         
-        resolve(canvas.toDataURL('image/jpeg'));
+        // First pass - extreme blur
+        ctx.filter = 'blur(100px)';
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Second pass - color enhancement
+        // ctx.globalCompositeOperation = 'saturation';
+        // ctx.fillStyle = 'hsl(0, 70%, 50%)';
+        // ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Third pass - very soft overlay of original
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.filter = 'blur(80px) brightness(1.2) contrast(1.3)';
+        ctx.globalAlpha = 0.4;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Fourth pass - additional color vibrancy
+        ctx.globalCompositeOperation = 'overlay';
+        ctx.globalAlpha = 0.1;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        resolve(canvas.toDataURL('image/jpeg', 0.95));
       };
       img.src = imageUrl;
     });
@@ -64,7 +85,7 @@ export class AppComponent {
     if (this.blurredImageUrl) {
       const link = document.createElement('a');
       link.href = this.blurredImageUrl;
-      link.download = 'blurred-image.jpg';
+      link.download = 'wallpaper.jpg';
       link.click();
     }
   }
