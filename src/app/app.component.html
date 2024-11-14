@@ -1,4 +1,4 @@
-<div class="container" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+<div class="container" [class.has-image]="imageUrl" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
   @if (!imageUrl) {
     <p>Drag any photo to this window.</p>
   }
