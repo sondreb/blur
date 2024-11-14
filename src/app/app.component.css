@@ -30,3 +30,19 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+.controls {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.controls input[type="range"] {
+  width: 200px;
+}

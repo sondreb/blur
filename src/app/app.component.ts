@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -14,6 +15,7 @@ export class AppComponent {
   imageUrl: string | null = null;
   blurredImageUrl: string | null = null;
   isProcessing = false;
+  blurAmount = 100;  // Default blur amount
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -28,8 +30,14 @@ export class AppComponent {
     if (file && file.type.startsWith('image/')) {
       this.isProcessing = true;
       this.imageUrl = await this.readFile(file);
-      this.blurredImageUrl = await this.applyBlur(this.imageUrl);
+      await this.processImage();
       this.isProcessing = false;
+    }
+  }
+
+  async processImage() {
+    if (this.imageUrl) {
+      this.blurredImageUrl = await this.applyBlur(this.imageUrl);
     }
   }
 
@@ -56,17 +64,12 @@ export class AppComponent {
         canvas.height = targetHeight;
         
         // First pass - extreme blur
-        ctx.filter = 'blur(100px)';
+        ctx.filter = `blur(${this.blurAmount}px)`;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        // Second pass - color enhancement
-        // ctx.globalCompositeOperation = 'saturation';
-        // ctx.fillStyle = 'hsl(0, 70%, 50%)';
-        // ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // Third pass - very soft overlay of original
         ctx.globalCompositeOperation = 'source-over';
-        ctx.filter = 'blur(80px) brightness(1.2) contrast(1.3)';
+        ctx.filter = `blur(${this.blurAmount * 0.8}px) brightness(1.2) contrast(1.3)`;
         ctx.globalAlpha = 0.4;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         
