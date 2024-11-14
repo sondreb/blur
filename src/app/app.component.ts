@@ -93,4 +93,10 @@ export class AppComponent {
       link.click();
     }
   }
+
+  reset() {
+    this.imageUrl = null;
+    this.blurredImageUrl = null;
+    this.blurAmount = 100;
+  }
 }

@@ -16,7 +16,10 @@
             <input type="range" min="20" max="200" [(ngModel)]="blurAmount" (ngModelChange)="processImage()">
           </label>
         </div>
-        <button (click)="downloadImage()">Download Blurred Image</button>
+        <div class="button-group">
+          <button (click)="downloadImage()">Download Blurred Image</button>
+          <button class="reset" (click)="reset()">Reset</button>
+        </div>
       </div>
     </div>
   }
