@@ -8,14 +8,13 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [RouterOutlet, CommonModule, FormsModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
 })
 export class AppComponent {
-  title = 'Blur';
   imageUrl: string | null = null;
   blurredImageUrl: string | null = null;
   isProcessing = false;
-  blurAmount = 100;  // Default blur amount
+  blurAmount = 100; // Default blur amount
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -55,29 +54,31 @@ export class AppComponent {
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d')!;
-        
+
         const aspectRatio = img.width / img.height;
         const targetWidth = 1920;
         const targetHeight = Math.round(targetWidth / aspectRatio);
-        
+
         canvas.width = targetWidth;
         canvas.height = targetHeight;
-        
+
         // First pass - extreme blur
         ctx.filter = `blur(${this.blurAmount}px)`;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
+
         // Third pass - very soft overlay of original
         ctx.globalCompositeOperation = 'source-over';
-        ctx.filter = `blur(${this.blurAmount * 0.8}px) brightness(1.2) contrast(1.3)`;
+        ctx.filter = `blur(${
+          this.blurAmount * 0.8
+        }px) brightness(1.2) contrast(1.3)`;
         ctx.globalAlpha = 0.4;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
+
         // Fourth pass - additional color vibrancy
         ctx.globalCompositeOperation = 'overlay';
         ctx.globalAlpha = 0.1;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
+
         resolve(canvas.toDataURL('image/jpeg', 0.95));
       };
       img.src = imageUrl;
@@ -88,7 +89,7 @@ export class AppComponent {
     if (this.blurredImageUrl) {
       const link = document.createElement('a');
       link.href = this.blurredImageUrl;
-      link.download = 'wallpaper.jpg';
+      link.download = 'blurred.jpg';
       link.click();
     }
   }

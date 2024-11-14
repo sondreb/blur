@@ -1,6 +1,4 @@
 <div class="container" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
-  <h1>{{title}}</h1>
-
   @if (!imageUrl) {
     <p>Drag any photo to this window.</p>
   }
@@ -11,14 +9,15 @@
 
   @if (blurredImageUrl) {
     <div class="result">
-      <div class="controls">
-        <label>
-          Blur Amount: {{blurAmount}}px
-          <input type="range" min="20" max="200" [(ngModel)]="blurAmount" (ngModelChange)="processImage()">
-        </label>
-      </div>
       <img [src]="blurredImageUrl" alt="Blurred image">
-      <button (click)="downloadImage()">Download Blurred Image</button>
+      <div class="overlay">
+        <div class="controls">
+          <label>
+            <input type="range" min="20" max="200" [(ngModel)]="blurAmount" (ngModelChange)="processImage()">
+          </label>
+        </div>
+        <button (click)="downloadImage()">Download Blurred Image</button>
+      </div>
     </div>
   }
 </div>
