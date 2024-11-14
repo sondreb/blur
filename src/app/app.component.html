@@ -1,5 +1,20 @@
-<h1>Blur</h1>
+<div class="container" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+  <h1>{{title}}</h1>
 
-<p>Drag any photo to this window.</p>
+  @if (!imageUrl) {
+    <p>Drag any photo to this window.</p>
+  }
+
+  @if (isProcessing) {
+    <p>Processing image...</p>
+  }
+
+  @if (blurredImageUrl) {
+    <div class="result">
+      <img [src]="blurredImageUrl" alt="Blurred image">
+      <button (click)="downloadImage()">Download Blurred Image</button>
+    </div>
+  }
+</div>
 
 <router-outlet />
