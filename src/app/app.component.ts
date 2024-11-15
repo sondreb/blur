@@ -61,6 +61,11 @@ export class AppComponent {
     });
   }
 
+  private isSafari(): boolean {
+    const userAgent = navigator.userAgent.toLowerCase();
+    return userAgent.includes('safari') && !userAgent.includes('chrome');
+  }
+
   private applyBlur(imageUrl: string): Promise<string> {
     return new Promise((resolve) => {
       const img = new Image();
@@ -75,22 +80,67 @@ export class AppComponent {
         canvas.width = targetWidth;
         canvas.height = targetHeight;
 
-        // First pass - extreme blur
-        ctx.filter = `blur(${this.blurAmount}px)`;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        if (this.isSafari()) {
+          // Calculate scale factors based on blur amount
+          let blurFactor = this.blurAmount / 100; // Normalize to 0-1
+          const baseScale = 0.4;
+          
+          const createBlurPass = (scale: number) => {
+            const temp = document.createElement('canvas');
+            const tempCtx = temp.getContext('2d')!;
+            // Adjust scale based on blur amount
+            const adjustedScale = scale * (1 - (blurFactor * 0.48));
+            temp.width = canvas.width * adjustedScale;
+            temp.height = canvas.height * adjustedScale;
+            return { canvas: temp, ctx: tempCtx };
+          };
 
-        // Third pass - very soft overlay of original
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.filter = `blur(${
-          this.blurAmount * 0.8
-        }px) brightness(1.2) contrast(1.3)`;
-        ctx.globalAlpha = 0.4;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const pass1 = createBlurPass(baseScale);
+          const pass2 = createBlurPass(baseScale * 0.5);
+          const pass3 = createBlurPass(baseScale * 0.25);
 
-        // Fourth pass - additional color vibrancy
-        ctx.globalCompositeOperation = 'overlay';
-        ctx.globalAlpha = 0.1;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          // Draw initial image at different scales
+          pass1.ctx.drawImage(img, 0, 0, pass1.canvas.width, pass1.canvas.height);
+          pass2.ctx.drawImage(img, 0, 0, pass2.canvas.width, pass2.canvas.height);
+          pass3.ctx.drawImage(img, 0, 0, pass3.canvas.width, pass3.canvas.height);
+
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Adjust layer opacities based on blur amount
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.globalAlpha = 0.7 * blurFactor;
+          ctx.drawImage(pass3.canvas, 0, 0, canvas.width, canvas.height);
+
+          ctx.globalAlpha = 0.6 * blurFactor;
+          ctx.drawImage(pass2.canvas, 0, 0, canvas.width, canvas.height);
+
+          ctx.globalAlpha = Math.max(0.2, 0.5 * (1 - blurFactor));
+          ctx.drawImage(pass1.canvas, 0, 0, canvas.width, canvas.height);
+
+          // Adjust vibrancy based on blur amount
+          ctx.globalCompositeOperation = 'overlay';
+          ctx.globalAlpha = 0.2 * (1 - blurFactor * 0.5);
+          ctx.drawImage(pass1.canvas, 0, 0, canvas.width, canvas.height);
+
+          // Final enhancement with reduced intensity for stronger blur
+          ctx.globalCompositeOperation = 'soft-light';
+          ctx.globalAlpha = Math.max(0.1, 0.3 * (1 - blurFactor));
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        } else {
+          // Original approach for other browsers
+          ctx.filter = `blur(${this.blurAmount}px)`;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.filter = `blur(${this.blurAmount * 0.8}px) brightness(1.2) contrast(1.3)`;
+          ctx.globalAlpha = 0.4;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          ctx.globalCompositeOperation = 'overlay';
+          ctx.globalAlpha = 0.1;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
 
         resolve(canvas.toDataURL('image/jpeg', 0.95));
       };
