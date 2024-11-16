@@ -15,6 +15,12 @@ export class AppComponent {
   blurredImageUrl: string | null = null;
   isProcessing = false;
   blurAmount = 100; // Default blur amount
+  private deferredPrompt: any;
+  showInstallButton = false;
+
+  constructor() {
+    this.handleInstallPrompt();
+  }
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -146,6 +152,32 @@ export class AppComponent {
       };
       img.src = imageUrl;
     });
+  }
+
+  private handleInstallPrompt() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredPrompt = e;
+      this.showInstallButton = true;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      this.showInstallButton = false;
+      this.deferredPrompt = null;
+    });
+  }
+
+  async installPwa() {
+    if (!this.deferredPrompt) return;
+    
+    this.deferredPrompt.prompt();
+    const { outcome } = await this.deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      this.showInstallButton = false;
+    }
+    
+    this.deferredPrompt = null;
   }
 
   downloadImage() {
