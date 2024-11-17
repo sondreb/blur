@@ -79,17 +79,40 @@ export class AppComponent {
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d')!;
-  
+
         const aspectRatio = img.width / img.height;
         const targetWidth = 1920;
         const targetHeight = Math.round(targetWidth / aspectRatio);
-  
+
         canvas.width = targetWidth;
         canvas.height = targetHeight;
-  
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        StackBlur.canvasRGB(canvas, 0, 0, canvas.width, canvas.height, this.blurAmount);
-  
+
+        if (this.isSafari()) {
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          StackBlur.canvasRGB(
+            canvas,
+            0,
+            0,
+            canvas.width,
+            canvas.height,
+            this.blurAmount
+          );
+        } else {
+          ctx.filter = `blur(${this.blurAmount}px)`;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.filter = `blur(${
+            this.blurAmount * 0.8
+          }px) brightness(1.2) contrast(1.3)`;
+          ctx.globalAlpha = 0.4;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          ctx.globalCompositeOperation = 'overlay';
+          ctx.globalAlpha = 0.1;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+
         resolve(canvas.toDataURL('image/jpeg', 0.95));
       };
       img.src = imageUrl;
@@ -111,14 +134,14 @@ export class AppComponent {
 
   async installPwa() {
     if (!this.deferredPrompt) return;
-    
+
     this.deferredPrompt.prompt();
     const { outcome } = await this.deferredPrompt.userChoice;
-    
+
     if (outcome === 'accepted') {
       this.showInstallButton = false;
     }
-    
+
     this.deferredPrompt = null;
   }
 
