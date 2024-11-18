@@ -1,6 +1,8 @@
 {
   "name": "Blur",
   "short_name": "Blur",
+  "author": "SondreB",
+  "description": "Blurs any photos. Useful for backgrounds, wallpapers and more.",
   "theme_color": "#fafafa",
   "background_color": "#fafafa",
   "display": "standalone",
